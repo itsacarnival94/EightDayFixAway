@@ -245,7 +245,7 @@
         <label for="start-date">Choose the starting date:</label>
         <input type="date" id="start-date" name="trip-start">
 
-        <table border="1" style="margin-top:20px;">
+        <table border="1" style="margin-top:20px;" class="table">
             <tr>
                 <th>Day 1 (<span class="day-label" data-day="0">xxxx-xx-xx</span>)</th>
                 <th>Day 2 (<span class="day-label" data-day="1">xxxx-xx-xx</span>)</th>
@@ -342,7 +342,7 @@
             return `${y}-${m}-${d}`;
         }
 
-        // Helper: grab a table cell by its "column,row" coordinate,
+        // Helper: grab a table cell by its "col,row" coordinate,
         // e.g. getCell(0, 0) finds the span with data-cell="0,0"
         function getCell(col, row) {
             return document.querySelector(`[data-cell="${col},${row}"]`);
@@ -351,29 +351,29 @@
         form.addEventListener('submit', function (event) {
             event.preventDefault();
 
-            const onCell=(0,0);
+            // Step 1: gather all 8 class names into one list (index 0-7)
+            const classValues = [
+                document.getElementById('class1').value,
+                document.getElementById('class2').value,
+                document.getElementById('class3').value,
+                document.getElementById('class4').value,
+                document.getElementById('class5').value,
+                document.getElementById('class6').value,
+                document.getElementById('class7').value,
+                document.getElementById('class8').value
+            ];
 
-            const class1Value = document.getElementById('class1').value;
-            const class2Value = document.getElementById('class2').value;
-            const class3Value = document.getElementById('class3').value;
-            const class4Value = document.getElementById('class4').value;
-            const class5Value = document.getElementById('class5').value;
-            const class6Value = document.getElementById('class6').value;
-            const class7Value = document.getElementById('class7').value;
-            const class8Value = document.getElementById('class8').value;
-            const cell = getCell(0, 0);
-            if (cell) cell.textContent = class1Value;
-            for (let x=0;x<=88;i++){
-                for (let y=0;y<=88;y++){
-                    
+            const numDays = 8;    // 8 columns (Day 1 - Day 8)
+            const numPeriods = 7; // 7 rows (row 0 - row 6 in your table)
+
+            for (let period = 0; period < numPeriods; period++) {
+                for (let day = 0; day < numDays; day++) {
+                    // across = +1 per day, down = +2 per period, wraps every 8 with %8
+                    const index = (day + period * 2) % 8;
+                    const cell = getCell(day, period);
+                    if (cell) cell.textContent = classValues[index];
                 }
             }
-            const cell3= getCell(0, 1);
-            if (cell3) cell3.textContent = class3Value;
-            
-
-
-
         });
 
         picker.addEventListener('change', () => {
