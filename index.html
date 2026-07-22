@@ -15,6 +15,12 @@
             font-family: 'Bebas Neue'; /*a name to be used later*/
             src: url('fonts/BebasNeue-Regular.ttf'); /*URL to font*/
         }
+        .subtitle{
+            position: fixed;
+            font-size: 16pxx;
+            top:75px;
+            left:120px;
+        }
         .header {
             background-color: var(--darkgreen);
             position: fixed;
@@ -25,7 +31,7 @@
             top: 0;
             left: 0;
             z-index: 100;
-
+            
             display: flex;
             align-items: center;
             padding: 10px 20px;
@@ -46,7 +52,7 @@
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0px 2px 1px rgba(0,0,0,0.5));
             font-family: 'Playfair Display', serif;
-            font-size: 3rem;
+
             font-weight: bold;
             margin: 0;
         }
@@ -166,7 +172,9 @@
             font-size: 25px;
             font-weight:bold;
         }
-       
+        .topText{
+            font-size: 50px;
+        }
 
         .form__field:required, .form__field:invalid { box-shadow: none; }
 
@@ -179,8 +187,8 @@
 
     <div class="header">
         <img src="images/logo.svg" alt="Logo" class="logo">
-        <h1 class="gold-text">Eight-Day Fix-Away</h1>
-        <p>Got A Stupid 8-Day </p>
+        <p class="gold-text subtitle">Got A Stupid 8-Day Schedule That Won't Go Away; Use 8-Day Fix Away</p>
+        <h1 class="gold-text topText">8-Day Fix-Away</h1>
     </div>
 
     <div class="user-input">
