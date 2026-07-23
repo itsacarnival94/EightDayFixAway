@@ -339,6 +339,8 @@
                 <td><span class="cell" data-cell="7,3">-</span></td>
             </tr>
         </table>
+
+
     </div>
 
     <script>
@@ -426,15 +428,19 @@
         back.addEventListener('click', function() {
             isBackPressed=true;
             adjustSchedule(start-date)
+            location.reload()
+            
         });
         forward.addEventListener('click', function() {
             isForwardPressed=true;
             adjustSchedule(start-date)
+            location.reload()
         });
         function adjustSchedule(start){
             if (isBackPressed==true){
                 start.getDate-=1
                 isBackPressed=false;
+                
             }
             if (isForwardPressed==true){
                 start.getDate+=1
