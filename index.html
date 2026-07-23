@@ -256,8 +256,12 @@
     <br>
     <hr>
     <div class="schedule">
-        <label for="start-date">Choose the starting date:</label>
+        <p><label for="start-date">Choose the starting date:</label></p>
         <input type="date" id="start-date" name="trip-start">
+        <div class="switcher">
+            <button id="back"><</button><button id="forward">></button>
+        </div>
+        
 
         <table border="1" class="table">
             <tr>
@@ -341,6 +345,11 @@
         const picker = document.getElementById('start-date');
         const dayLabels = document.querySelectorAll('.day-label');
         const form = document.getElementById('my-form');
+        const back = document.getElementById('back');
+        const forward = document.getElementById('forward');
+        let isBackPressed=false;
+        let isForwardPressed=false;
+        
 
         // Turns a Date object into "yyyy-mm-dd" text, padded with zeros
         function formatDate(date) {
@@ -370,7 +379,7 @@
                 document.getElementById('class7').value,
                 document.getElementById('class8').value
             ];
-
+            
             const numDays = 8;    // 8 columns (Day 1 - Day 8)
             const numPeriods = 4; // 4 rotating class rows, like the reference sheet
 
@@ -391,6 +400,24 @@
                 }
             }
         });
+        back.addEventListener('click', function() {
+            isBackPressed=true;
+            adjustSchedule(thisDay)
+        });
+        forward.addEventListener('click', function() {
+            isForwardPressed=true;
+            adjustSchedule(thisDay)
+        });
+        function adjustSchedule(start){
+            if (isBackPressed==true){
+                start.getDate-=1
+                isBackPressed=false;
+            }
+            if (isForwardPressed==true){
+                start.getDate+=1
+                isForwardPressed=false;
+            } 
+        }
 
         picker.addEventListener('change', () => {
             if (!picker.value) {
@@ -408,7 +435,9 @@
                 const thisDay = new Date(startDate);
                 thisDay.setDate(startDate.getDate() + offset);
                 label.textContent = formatDate(thisDay);
+                //console.log(typeof thisDay)
             });
+            
         });
     </script>
 </body>
