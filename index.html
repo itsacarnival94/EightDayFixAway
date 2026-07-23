@@ -350,6 +350,29 @@
         let isBackPressed=false;
         let isForwardPressed=false;
         
+        picker.addEventListener('change', () => {
+            if (!picker.value) {
+                dayLabels.forEach(label => label.textContent = 'xxxx-xx-xx');
+                console.log("a")
+                return;
+            }
+
+            // picker.value looks like "2026-07-21" - split it into numbers
+            const [year, month, dayOfMonth] = picker.value.split('-').map(Number);
+            // month - 1 because JS Dates count months starting at 0 (January = 0)
+            const startDate = new Date(year, month - 1, dayOfMonth);
+
+            dayLabels.forEach(label => {
+                const offset = Number(label.dataset.day); // 0, 1, 2, ... 7
+                const thisDay = new Date(startDate);
+                thisDay.setDate(startDate.getDate() + offset);
+                label.textContent = formatDate(thisDay);
+                //console.log(typeof thisDay)
+            });
+
+            
+            
+        });
 
         // Turns a Date object into "yyyy-mm-dd" text, padded with zeros
         function formatDate(date) {
@@ -402,11 +425,11 @@
         });
         back.addEventListener('click', function() {
             isBackPressed=true;
-            adjustSchedule(thisDay)
+            adjustSchedule(start-date)
         });
         forward.addEventListener('click', function() {
             isForwardPressed=true;
-            adjustSchedule(thisDay)
+            adjustSchedule(start-date)
         });
         function adjustSchedule(start){
             if (isBackPressed==true){
@@ -419,26 +442,7 @@
             } 
         }
 
-        picker.addEventListener('change', () => {
-            if (!picker.value) {
-                dayLabels.forEach(label => label.textContent = 'xxxx-xx-xx');
-                return;
-            }
-
-            // picker.value looks like "2026-07-21" - split it into numbers
-            const [year, month, dayOfMonth] = picker.value.split('-').map(Number);
-            // month - 1 because JS Dates count months starting at 0 (January = 0)
-            const startDate = new Date(year, month - 1, dayOfMonth);
-
-            dayLabels.forEach(label => {
-                const offset = Number(label.dataset.day); // 0, 1, 2, ... 7
-                const thisDay = new Date(startDate);
-                thisDay.setDate(startDate.getDate() + offset);
-                label.textContent = formatDate(thisDay);
-                //console.log(typeof thisDay)
-            });
-            
-        });
+        
     </script>
 </body>
 </html>
