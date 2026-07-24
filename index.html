@@ -259,7 +259,7 @@
         <p><label for="start-date">Choose the starting date:</label></p>
         <input type="date" id="start-date" name="trip-start">
         <div class="switcher">
-            <button id="back"><</button><button id="forward">></button>
+            <button type="submit" id="back" onclick="backa()"><</button><button id="forward">></button>
         </div>
         
 
@@ -425,28 +425,12 @@
                 }
             }
         });
-        back.addEventListener('click', function() {
-            isBackPressed=true;
-            adjustSchedule(start-date)
-            location.reload()
-            
-        });
-        forward.addEventListener('click', function() {
-            isForwardPressed=true;
-            adjustSchedule(start-date)
-            location.reload()
-        });
-        function adjustSchedule(start){
-            if (isBackPressed==true){
-                start.getDate-=1
-                isBackPressed=false;
-                
-            }
-            if (isForwardPressed==true){
-                start.getDate+=1
-                isForwardPressed=false;
-            } 
+        function backa(){
+            console.log("back :", typeof(thisDay))
         }
+        back.addEventListener("click", backa)
+
+        
 
         
     </script>
