@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <title>Eight-Day Fix-Away</title>
     <link rel="icon" type="image/svg-xml" href="images/logo.svg">
-    <meta name="author" content="">
-    <meta name="description" content="">
+    <meta name="author" content="Froggirl13">
+    <meta name="description" content="8-Day schedule calculator">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         :root{
@@ -362,9 +362,7 @@
             return `${y}-${m}-${d}`;
         }
 
-        // Repaints the 8 day-labels based on whatever currentStartDate is right now.
-        // Both the date picker AND the forward/back buttons call this one function,
-        // so there's only one place that actually updates the screen.
+
         function updateDayLabels() {
             if (!currentStartDate) {
                 dayLabels.forEach(label => label.textContent = 'xxxx-xx-xx');
@@ -375,9 +373,6 @@
                 const offset = Number(label.dataset.day); // 0, 1, 2, ... 7
                 const thisDay = new Date(currentStartDate);
                 thisDay.setDate(currentStartDate.getDate() + offset);
-                // No need to manually cap the day number at 31 - setDate()
-                // automatically rolls over into the next month on its own,
-                // just like a car's odometer rolling from 9 to 0.
                 label.textContent = formatDate(thisDay);
             });
 
