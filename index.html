@@ -348,12 +348,12 @@
         const dayLabels = document.querySelectorAll('.day-label');
         const form = document.getElementById('my-form');
         const back = document.getElementById('back');
-
+        const firstday= new Date("2026-08-17T09:41:00");
         // This is the one shared "memory" of the currently selected start date.
         // Every function (picker, forward, back) reads from and writes to THIS,
         // instead of each one keeping its own private copy.
         let currentStartDate = null;
-
+        console.log(firstday, ":",typeof(firstday))
         // Turns a Date object into "yyyy-mm-dd" text, padded with zeros
         function formatDate(date) {
             const y = date.getFullYear();
@@ -452,6 +452,11 @@
             if (!currentStartDate) return;
             currentStartDate.setDate(currentStartDate.getDate() - 1);
             updateDayLabels();
+        }
+        function schoolYear(){
+            for (currentStartDate;d<180;d++){
+
+            }
         }
     </script>
 </body>
