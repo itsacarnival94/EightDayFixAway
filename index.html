@@ -266,14 +266,14 @@
         <table border="1" class="table">
             <tr>
                 <th class="time-col"></th>
-                <th>Day 1 (<span class="day-label" data-day="0">xxxx-xx-xx</span>)</th>
-                <th>Day 2 (<span class="day-label" data-day="1">xxxx-xx-xx</span>)</th>
-                <th>Day 3 (<span class="day-label" data-day="2">xxxx-xx-xx</span>)</th>
-                <th>Day 4 (<span class="day-label" data-day="3">xxxx-xx-xx</span>)</th>
-                <th>Day 5 (<span class="day-label" data-day="4">xxxx-xx-xx</span>)</th>
-                <th>Day 6 (<span class="day-label" data-day="5">xxxx-xx-xx</span>)</th>
-                <th>Day 7 (<span class="day-label" data-day="6">xxxx-xx-xx</span>)</th>
-                <th>Day 8 (<span class="day-label" data-day="7">xxxx-xx-xx</span>)</th>
+                <th><span class="day-number" data-day="0">Day 1</span> (<span class="day-label" data-day="0">xxxx-xx-xx</span>)</th>
+                <th><span class="day-number" data-day="1">Day 2</span> (<span class="day-label" data-day="1">xxxx-xx-xx</span>)</th>
+                <th><span class="day-number" data-day="2">Day 3</span> (<span class="day-label" data-day="2">xxxx-xx-xx</span>)</th>
+                <th><span class="day-number" data-day="3">Day 4</span> (<span class="day-label" data-day="3">xxxx-xx-xx</span>)</th>
+                <th><span class="day-number" data-day="4">Day 5</span> (<span class="day-label" data-day="4">xxxx-xx-xx</span>)</th>
+                <th><span class="day-number" data-day="5">Day 6</span> (<span class="day-label" data-day="5">xxxx-xx-xx</span>)</th>
+                <th><span class="day-number" data-day="6">Day 7</span> (<span class="day-label" data-day="6">xxxx-xx-xx</span>)</th>
+                <th><span class="day-number" data-day="7">Day 8</span> (<span class="day-label" data-day="7">xxxx-xx-xx</span>)</th>
             </tr>
             <tr>
                 <td class="time-col">8:25 - 9:40</td>
@@ -346,14 +346,18 @@
     <script>
         const picker = document.getElementById('start-date');
         const dayLabels = document.querySelectorAll('.day-label');
+        const dayNumberLabels = document.querySelectorAll('.day-number');
         const form = document.getElementById('my-form');
         const back = document.getElementById('back');
-        const firstday= new Date("2026-08-17T09:41:00");
-        // This is the one shared "memory" of the currently selected start date.
-        // Every function (picker, forward, back) reads from and writes to THIS,
-        // instead of each one keeping its own private copy.
+
+        // Day 1 of the whole school year: August 17, 2026, 8:25 AM
+        const firstday = new Date(2026, 7, 17, 8, 25, 0); // month 7 = August (JS months are 0-11)
+        // Last day of the school year: June 9, 2027, 3:30 PM
+        const endDate = new Date(2027, 5, 9, 15, 30, 0); // month 5 = June
+
         let currentStartDate = null;
-        console.log(firstday, ":",typeof(firstday))
+        let savedClassValues = null; // remembers the 8 class names after you hit Submit
+
         // Turns a Date object into "yyyy-mm-dd" text, padded with zeros
         function formatDate(date) {
             const y = date.getFullYear();
@@ -362,18 +366,81 @@
             return `${y}-${m}-${d}`;
         }
 
+        // Saturday (0-index 6) or Sunday (0-index 0) - the merry-go-round pauses on these
+        function isWeekend(date) {
+            const day = date.getDay();
+            return day === 0 || day === 6;
+        }
+
+        // Strips the time off a date so we can compare "just the day" cleanly
+        function stripTime(date) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+
+        // Starting from `date`, step forward `n` SCHOOL days (skipping weekends
+        // entirely, like they don't exist on the calendar)
+        function addSchoolDays(date, n) {
+            const result = new Date(date);
+            let added = 0;
+            while (added < n) {
+                result.setDate(result.getDate() + 1);
+                if (!isWeekend(result)) {
+                    added++;
+                }
+            }
+            return result;
+        }
+
+        // If a date lands on a weekend, nudge it forward to the next school day
+        function snapToSchoolDay(date) {
+            const result = new Date(date);
+            while (isWeekend(result)) {
+                result.setDate(result.getDate() + 1);
+            }
+            return result;
+        }
+
+        // Given ANY date, figures out where it falls in the repeating 1-8
+        // merry-go-round, counting only school days from firstday (which is
+        // always Day 1). Weekends don't advance the count at all.
+        function getCycleDayNumber(date) {
+            const target = stripTime(date);
+            const start = stripTime(firstday);
+
+            if (target < start) return null; // before the school year even starts
+
+            let schoolDaysPassed = 0; // how many school days between start and target
+            const current = new Date(start);
+
+            while (current < target) {
+                current.setDate(current.getDate() + 1);
+                if (!isWeekend(current)) {
+                    schoolDaysPassed++;
+                }
+            }
+
+            // schoolDaysPassed = 0 means we ARE on firstday itself -> Day 1
+            return (schoolDaysPassed % 8) + 1; // always comes out 1-8
+        }
 
         function updateDayLabels() {
             if (!currentStartDate) {
                 dayLabels.forEach(label => label.textContent = 'xxxx-xx-xx');
+                dayNumberLabels.forEach(label => label.textContent = 'Day ?');
                 return;
             }
 
             dayLabels.forEach(label => {
                 const offset = Number(label.dataset.day); // 0, 1, 2, ... 7
-                const thisDay = new Date(currentStartDate);
-                thisDay.setDate(currentStartDate.getDate() + offset);
+                const thisDay = addSchoolDays(currentStartDate, offset);
                 label.textContent = formatDate(thisDay);
+            });
+
+            dayNumberLabels.forEach(label => {
+                const offset = Number(label.dataset.day);
+                const thisDay = addSchoolDays(currentStartDate, offset);
+                const cycleDay = getCycleDayNumber(thisDay);
+                label.textContent = cycleDay ? `Day ${cycleDay}` : 'Day ?';
             });
 
             // Keep the <input type="date"> box in sync too, so it always
@@ -391,8 +458,15 @@
             // picker.value looks like "2026-07-21" - split it into numbers
             const [year, month, dayOfMonth] = picker.value.split('-').map(Number);
             // month - 1 because JS Dates count months starting at 0 (January = 0)
-            currentStartDate = new Date(year, month - 1, dayOfMonth);
+            let picked = new Date(year, month - 1, dayOfMonth);
+
+            // If someone picks a Saturday or Sunday, snap forward to Monday -
+            // there's no school that day, so it can't be the start of anything
+            picked = snapToSchoolDay(picked);
+
+            currentStartDate = picked;
             updateDayLabels();
+            renderClasses();
         });
 
         // Helper: grab a table cell by its "col,row" coordinate,
@@ -401,11 +475,51 @@
             return document.querySelector(`[data-cell="${col},${row}"]`);
         }
 
+        // Fills in the whole grid (all 4 periods x 8 columns) using
+        // whatever class names were last submitted, anchored to the TRUE
+        // cycle day of whatever date is currently showing. This is the
+        // "restock the vending machine" function - call it any time the
+        // displayed day changes, not just once at submit time.
+        function renderClasses() {
+            if (!savedClassValues) return; // nothing submitted yet - nothing to draw
+
+            const numDays = 8;    // 8 columns (Day 1 - Day 8)
+            const numPeriods = 4; // 4 rotating class rows, like the reference sheet
+
+            // Figure out the REAL cycle day (1-8) that the first visible
+            // column actually is, anchored all the way back to Aug 17, 2026.
+            // If no date has been picked yet, just assume the columns are
+            // Day 1 through Day 8 in order (0-based index 0).
+            const anchorDate = currentStartDate || firstday;
+            const startCycleDay = getCycleDayNumber(anchorDate) || 1; // 1-8
+            const startIndex = startCycleDay - 1; // convert to 0-7 for math
+
+            for (let period = 0; period < numPeriods; period++) {
+                for (let day = 0; day < numDays; day++) {
+                    // across = +1 per day, down = +2 per period, wraps every 8 with %8
+                    // "day" here is shifted so the column's TRUE cycle day drives
+                    // which class shows up, not just its position on screen
+                    const index = (startIndex + day + period * 2) % 8;
+                    const cell = getCell(day, period);
+                    if (!cell) continue;
+
+                    cell.textContent = savedClassValues[index];
+
+                    // Color the parent <td> based on which class number (1-8) landed here,
+                    // same idea as the reference sheet's color-per-period-number
+                    const td = cell.closest('td');
+                    td.className = td.className.replace(/\bperiod-\d\b/g, '').trim();
+                    td.classList.add(`period-${index + 1}`);
+                }
+            }
+        }
+
         form.addEventListener('submit', function (event) {
             event.preventDefault();
 
             // Step 1: gather all 8 class names into one list (index 0-7)
-            const classValues = [
+            // and remember them, so arrows/date-picker can reuse them later
+            savedClassValues = [
                 document.getElementById('class1').value,
                 document.getElementById('class2').value,
                 document.getElementById('class3').value,
@@ -415,49 +529,36 @@
                 document.getElementById('class7').value,
                 document.getElementById('class8').value
             ];
-            
-            const numDays = 8;    // 8 columns (Day 1 - Day 8)
-            const numPeriods = 4; // 4 rotating class rows, like the reference sheet
 
-            for (let period = 0; period < numPeriods; period++) {
-                for (let day = 0; day < numDays; day++) {
-                    // across = +1 per day, down = +2 per period, wraps every 8 with %8
-                    const index = (day + period * 2) % 8;
-                    const cell = getCell(day, period);
-                    if (!cell) continue;
-
-                    cell.textContent = classValues[index];
-
-                    // Color the parent <td> based on which class number (1-8) landed here,
-                    // same idea as the reference sheet's color-per-period-number
-                    const td = cell.closest('td');
-                    td.className = td.className.replace(/\bperiod-\d\b/g, '').trim();
-                    td.classList.add(`period-${index + 1}`);
-                }
-            }
+            renderClasses();
         });
 
-        // Moves the schedule forward by one day. Because currentStartDate is
-        // shared "memory" (declared above, outside any function), each click
-        // builds on the LAST click's result instead of starting over from
-        // today's real-world date.
+        // Moves the schedule forward by one SCHOOL day (skips weekends
+        // automatically - Friday's ">" click lands you on Monday)
         function forward() {
             if (!currentStartDate) return; // no start date picked yet - nothing to move
-            currentStartDate.setDate(currentStartDate.getDate() + 1);
+            currentStartDate = addSchoolDays(currentStartDate, 1);
             updateDayLabels();
+            renderClasses();
         }
 
-        // Moves the schedule back by one day
+        // Moves the schedule back by one SCHOOL day
         function backDay() {
             if (!currentStartDate) return;
-            currentStartDate.setDate(currentStartDate.getDate() - 1);
+            const prev = new Date(currentStartDate);
+            do {
+                prev.setDate(prev.getDate() - 1);
+            } while (isWeekend(prev));
+            currentStartDate = prev;
             updateDayLabels();
+            renderClasses();
         }
-        function schoolYear(){
-            for (currentStartDate;d<180;d++){
 
-            }
-        }
+        // Start the whole page anchored at Aug 17, 2026 (Day 1) right away,
+        // so the arrows work immediately - no need to touch the date picker
+        // first just to get things moving.
+        currentStartDate = new Date(firstday);
+        updateDayLabels();
     </script>
 </body>
 </html>
